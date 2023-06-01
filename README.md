@@ -48,7 +48,21 @@ This code implements the functions of the LoRa receiver. It includes the LoRa an
 This code is designed to control the operation of the GPS module. It reads GPS data to obtain location information. It uses the TinyGPS++ library and the HardwareSerial library. It reads serial data from the GPS module and, when a valid location fix is obtained, it displays the latitude, longitude, and altitude information on the serial port. The purpose of the code is to read and display GPS location data.
 
 ## Integrated Receiver and Transmitter
+The code utilizes the LoRa library to establish long-range communication between the LoRa transmitter and receiver. LoRa (Long Range) technology enables reliable communication over long distances with low power consumption. The LoRa module is configured to operate at a frequency of 868MHz (BAND), which is a common frequency for LoRa applications in Europe.
 
+The GPS module is connected to the receiver using a serial communication line. The TinyGPS++ library is used to decode the NMEA GPS data received from the module. The GPS data includes latitude and longitude information, as well as altitude.
+
+In the main loop, the code checks for available GPS data by reading the GPSSerial. If valid GPS location data is received, it proceeds to check for incoming LoRa packets using the LoRa.parsePacket() function. If a packet is available, it reads the data using the readData() function.
+
+The received packet contains the latitude and longitude information transmitted by the LoRa transmitter. The code extracts the latitude and longitude values from the packet using substring operations and converts them to floating-point values for further calculations.
+
+To calculate the distance between the receiver and transmitter, the Haversine formula is used. The Haversine formula takes into account the curvature of the Earth and provides a reasonably accurate estimation of the distance between two points on the Earth's surface. The calculateDistance() function implements the Haversine formula and returns the distance in meters.
+
+The calculated distance is then displayed on the OLED screen using the Adafruit SSD1306 library. The OLED screen is initialized with the appropriate settings, and the displayData() function is called to update the screen with the distance value.
+
+In addition to the OLED display, the distance value is printed on the serial port for monitoring and debugging purposes. The receiver and transmitter coordinates, as well as the calculated distance, are printed on the serial port to provide a comprehensive view of the received data.
+
+These technical details showcase how the code integrates LoRa communication, GPS data parsing, distance calculation, and display functionalities to create a complete system for wireless distance measurement using LoRa and GPS technologies.
 
 
 
