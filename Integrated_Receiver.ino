@@ -19,6 +19,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 TinyGPSPlus gps;
 HardwareSerial GPSSerial(1);
 
+float decreaseThreshold = 5.0;  // Azalma eşik değeri (örneğin 5 metre)
+float increaseThreshold = 5.0;  // Artış eşik değeri (örneğin 5 metre)
+float previousDistance = 0.0;
+
 void setupGPS() {
   GPSSerial.begin(9600, SERIAL_8N1, 34, 12);
 }
@@ -33,14 +37,88 @@ String readData() {
   return packet;
 }
 
-void displayData(const String& data) {
+void displayDistance(float distance) {
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(0, 0);
-  display.println(data);
-  display.display();
 
-  //Serial.println("packet: " + data);
+  if (distance >= increaseThreshold) {
+    display.println("Distance increased!");
+  } else if (distance <= -decreaseThreshold) {
+    display.println("Distance decreased!");
+  } else {
+    display.println("Distance is stable.");
+  }
+
+  display.display();
+}
+
+void displaySerialDistance(float distance) {
+  if (distance >= increaseThreshold) {
+    Serial.println("Distance increased! Drive safely.");
+  } else if (distance <= -decreaseThreshold) {
+    Serial.println("Distance decreased! Pay attention.");
+  } else {
+    Serial.println("Distance is stable. Drive carefully.");
+  }
+}
+
+float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
+  // Haversine formülü ile mesafe hesaplama
+  float r = 6371000; // Dünya yarıçapı (metre cinsinden)
+  float dLat = radians(lat2 - lat1);
+  float dLon = radians(lon2 - lon1);
+  float a = sin(dLat / 2) * sin(dLat / 2) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+  float c = 2 * atan2(sqrt(a), sqrt(1 - a));
+  float distance = r * c;
+
+  return distance;
+}
+
+void displayCoordinates(float transmitterLat, float transmitterLon, float receiverLat, float receiverLon, float distance) {
+  Serial.println("GPS Geographic Coordinates");
+  Serial.println("----Transmitter Latitude: " + String(transmitterLat) + " m");
+  Serial.println("----Transmitter Longitude: " + String(transmitterLon) + " m");
+  Serial.println("----Receiver Latitude: " + String(receiverLat) + " m");
+  Serial.println("----Receiver Longitude: " + String(receiverLon) + " m");
+  Serial.println("----Distance: " + String(distance) + " m");
+  Serial.println("******************************");
+}
+
+void processGPSData() {
+  if (gps.location.isValid()) {
+    float latitude = gps.location.lat();
+    float longitude = gps.location.lng();
+
+    int packetSize = LoRa.parsePacket();
+    if (packetSize) {
+      String packet = readData();
+      String receivedLatitude = packet.substring(packet.indexOf("LAT:") + 4, packet.indexOf(","));
+      String receivedLongitude = packet.substring(packet.indexOf("LON:") + 4);
+
+      // Convert received latitude and longitude to float with 6 decimal places
+      float receivedLat = receivedLatitude.toFloat();
+      float receivedLon = receivedLongitude.toFloat();
+
+      // Calculate distance
+      float distance = calculateDistance(latitude, longitude, receivedLat, receivedLon);
+
+      // Check if distance has decreased or increased significantly
+      if (previousDistance > 0.0) {
+        float difference = previousDistance - distance;
+        displaySerialDistance(difference);
+      }
+
+      // Update previous distance value
+      previousDistance = distance;
+
+      // Display coordinates and distance
+      displayCoordinates(latitude, longitude, receivedLat, receivedLon, distance);
+
+      // Display distance on OLED
+      displayDistance(distance);
+    }
+  }
 }
 
 void setup() {
@@ -69,52 +147,7 @@ void loop() {
     gps.encode(GPSSerial.read());
   }
 
-  if (gps.location.isValid()) {
-    float latitude = gps.location.lat();
-    float longitude = gps.location.lng();
-
-    int packetSize = LoRa.parsePacket();
-    if (packetSize) {
-      String packet = readData();
-      String receivedLatitude = packet.substring(packet.indexOf("LAT:") + 4, packet.indexOf(","));
-      String receivedLongitude = packet.substring(packet.indexOf("LON:") + 4);
-
-      float receivedLat = receivedLatitude.toFloat();
-      float receivedLon = receivedLongitude.toFloat();
-
-      // Hesaplanan mesafeyi burada gösterebilirsiniz
-      float distance = calculateDistance(latitude, longitude, receivedLat, receivedLon);
-     
-      displayData("Distance: " + String(distance) + " meters");
-
-      Serial.println("****************************************");
-      Serial.println("GPS Georaphic Coordinates ");
-      Serial.println("----Transmitter Latitude: " + String(receivedLatitude) + " m");
-      Serial.println("----Transmitter Longitude: " + String(receivedLongitude) + " m");
-      Serial.println("----Receiver Latitude: " + String(latitude) + " m");
-      Serial.println("----Receiver Longitude: " + String(longitude) + " m");
-      Serial.println("----Distance: " + String(distance) + " m");
-      Serial.println("****************************************");
-      
-    }
-  }
+  processGPSData();
 
   delay(1000);
 }
-float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
-  // havesine fonksiyonu
-  float r = 6371000; // Dünya yarıçapı (metre cinsinden)
-  float dLat = radians(lat2 - lat1);
-  float dLon = radians(lon2 - lon1);
-  float a = sin(dLat / 2) * sin(dLat / 2) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
-  float c = 2 * atan2(sqrt(a), sqrt(1 - a));
-  float distance = r * c;
-
-  
-  return distance;
-}
-// float calculateDistance2(float lat1, float lon1, float lat2, float lon2) {
-//   // kartezyen düzlemde 2 nokt arası mesafe hesaplama
-//   float distance = sqrt(sq(lat1 - lat2) + sq(lon1 - lon2));
-//   return distance;
-// }
