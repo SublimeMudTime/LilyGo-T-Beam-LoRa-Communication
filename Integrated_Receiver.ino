@@ -39,15 +39,15 @@ String readData() {
 
 void displayDistance(float distance) {
   display.clearDisplay();
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setCursor(0, 0);
 
   if (distance >= increaseThreshold) {
-    display.println("Distance increased!");
+    display.println("Distance increased!   Stand Your Position.");
   } else if (distance <= -decreaseThreshold) {
-    display.println("Distance decreased!");
+    display.println("Distance decreased!   Pay attention!");
   } else {
-    display.println("Distance is stable.");
+    display.println("Good Driving,   Drive Safely :)");
   }
 
   display.display();
@@ -107,6 +107,7 @@ void processGPSData() {
       if (previousDistance > 0.0) {
         float difference = previousDistance - distance;
         displaySerialDistance(difference);
+        displayDistance(difference);
       }
 
       // Update previous distance value
@@ -114,9 +115,6 @@ void processGPSData() {
 
       // Display coordinates and distance
       displayCoordinates(latitude, longitude, receivedLat, receivedLon, distance);
-
-      // Display distance on OLED
-      displayDistance(distance);
     }
   }
 }
@@ -148,6 +146,5 @@ void loop() {
   }
 
   processGPSData();
-
   delay(1000);
 }
