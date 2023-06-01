@@ -11,7 +11,7 @@ LoRa modules are responsible for wireless communication between emergency vehicl
 
 An Arduino or similar microcontroller is employed to control the system components. It facilitates the connection of LoRa modules and GPS modules, as well as the processing and display of received data. OLED displays are utilized to provide visual output of important information, allowing vehicles and the control center to read the received data, such as distance information.
 
-![Modules](project_image_2.jpg)
+![Modules](project_image_3.jpg)
 
 ## Features
 - LILYGO T-BEAM-V1.1 and Arduino IDE is used 
@@ -66,7 +66,7 @@ These technical details showcase how the code integrates LoRa communication, GPS
 
 
 
-![Output](project_image_3.jpg)
+![Output](project_image_2.jpg)
 
 
 
