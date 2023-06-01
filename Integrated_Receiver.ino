@@ -43,11 +43,23 @@ void displayDistance(float distance) {
   display.setCursor(0, 0);
 
   if (distance >= increaseThreshold) {
-    display.println("Distance increased!   Stand Your Position.");
+    display.println("Distance increased!");
+    display.println("Stay on the Line.");
+    display.setTextSize(1);
+    display.println("Distance: Inreasing");
   } else if (distance <= -decreaseThreshold) {
-    display.println("Distance decreased!   Pay attention!");
+    display.println("Distance decreased!");
+    display.println("Stand Your Position!");
+    display.setTextSize(2);
+    display.println("CAREFUL!");
+     display.setTextSize(1);
+    display.println("Distance: Decreasing");  
   } else {
-    display.println("Good Driving,   Drive Safely :)");
+    display.println("Good Driving,");
+    display.setTextSize(2);
+    display.println("Drive Safely..");
+    display.setTextSize(1);
+    display.println("Distance: Stable");
   }
 
   display.display();
