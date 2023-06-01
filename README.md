@@ -35,13 +35,13 @@ An Arduino or similar microcontroller is employed to control the system componen
 
 # CODES
 
-## transmitter.ino:
+## transmitter.ino
 This code implements the functions of the LoRa transmitter. It includes the SPI and LoRa libraries. It sends packets over the LoRa module and increments a counter value with each transmission. It displays the counter value on the serial port and transmits the packet through the LoRa module to enable wireless communication. The purpose of the code is to send string data "packet 1," "packet 2," etc., to control the functionality of the antennas.
 
-## receiver.ino:
+## receiver.ino
 This code implements the functions of the LoRa receiver. It includes the LoRa and Adafruit SSD1306 libraries. It uses the Wire library to scan I2C devices. It receives packets from the LoRa module, displays the received data on an OLED screen, and shows the content of the packet on the serial port. The purpose of the code is to receive and display the packets sent by the transmitter while controlling the functionality of the LoRa receiver.
 
-## gps-tracker.ino:
+## GPS-TRACKER.ino
 This code is designed to control the operation of the GPS module. It reads GPS data to obtain location information. It uses the TinyGPS++ library and the HardwareSerial library. It reads serial data from the GPS module and, when a valid location fix is obtained, it displays the latitude, longitude, and altitude information on the serial port. The purpose of the code is to read and display GPS location data.
 
 ## Acknowledgements
