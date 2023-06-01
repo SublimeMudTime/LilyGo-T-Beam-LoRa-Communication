@@ -1,6 +1,6 @@
 # V2V Smart Communication for Emergency Vehicles
 
-![Project Image](project_image.jpg)
+![Project Image](project_image_1.jpg)
 
 ## Overview
 V2V Smart Communication for Emergency Vehicles is a project aimed at enabling wireless communication and location sharing among emergency vehicles. The system enhances the efficiency and effectiveness of emergency response by allowing vehicles such as ambulances and fire trucks to communicate with each other. It facilitates improved traffic coordination and enhanced safety measures.
