@@ -66,7 +66,7 @@ These technical details showcase how the code integrates LoRa communication, GPS
 
 
 
-![Output](project_image_2.jpg)
+![Output](_project_image_2.jpg)
 
 
 
