@@ -67,4 +67,4 @@ To instantly follow the distance to the destination to be reached or to measure 
 - [TinyGPS++ Library](https://github.com/mikalhart/TinyGPSPlus) - For GPS data parsing.
 - [Adafruit SSD1306 Library](https://github.com/adafruit/Adafruit_SSD1306) - For OLED display support.
 - [LoRa Library](https://github.com/sandeepmistry/arduino-LoRa) - For LoRa communication.
--[LilyGo T-BeamV1.1](https://github.com/LilyGO/TTGO-T-Beam) - For T-Beam Module
+- [LilyGo T-BeamV1.1](https://github.com/LilyGO/TTGO-T-Beam) - For T-Beam Module
