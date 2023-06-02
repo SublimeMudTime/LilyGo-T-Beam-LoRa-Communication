@@ -14,27 +14,26 @@ An Arduino or similar microcontroller is employed to control the system componen
 ![Modules](project_image_3.jpg)
 
 ## Features
-- LILYGO T-BEAM-V1.1 and Arduino IDE is used 
-- Wireless communication between emergency vehicles using LoRa technology
-- Accurate location tracking and sharing through GPS modules
-- Efficient traffic coordination and enhanced safety measures
-- Real-time distance calculation and display
-- Low power consumption and long-range communication
+- LILYGO T-BEAM-V1.1 and Arduino IDE is used.
+- Wireless communication between emergency vehicles(Transmitter) and civilian cars(Receiver) using LoRa technology.
+- Accurate location tracking and sharing through GPS modules.
+- Efficient traffic coordination and awareness also enhanced safety measures.
+- Real-time distance calculation and display.
+- Low power consumption and long-range communication.
 
 ## Installation
 1. Clone this repository.
-2. Connect the LoRa modules, GPS modules, Arduino, and OLED displays as per the provided circuit diagram.
-3. Upload the receiver code to the Arduino.
-4. Upload the transmitter code to each emergency vehicle's Arduino.
-5. Power up the devices and ensure they are within LoRa communication range.
-6. The OLED displays will show the received distance information.
+2. Connect the LoRa modules, GPS modules, Arduino, and OLED displays if you use separate modules and microcontroller as per which fits for your project. If you use a Lilygo t-beam or that kind of module, it is come with connected by itself.
+3. Upload the needed receiver code to the civilian cars module. I uploaded via Arduino IDE but there are also alternatives.
+4. Upload the needed transmitter code to each emergency vehicle's module.
+5. Power up the devices and ensure they are within LoRa communication range.(433MHz, 868MHz, 915MHz,..)
 
 ## Usage
 - Ensure that the emergency vehicles are equipped with the necessary hardware components.
-- Power on the devices and wait for the LoRa communication to establish.
+- Power on the devices and wait for the LoRa communication to establish and GPS led's blink.
 - The vehicles will start communicating with each other and exchanging location data.
 - The OLED displays will show the received distance information.
-- Use the information to coordinate traffic and optimize emergency response.
+- Change the information according to your project to coordinate traffic and optimize emergency response.
 
 # CODES
 
@@ -45,26 +44,19 @@ This code implements the functions of the LoRa transmitter. It includes the SPI 
 This code implements the functions of the LoRa receiver. It includes the LoRa and Adafruit SSD1306 libraries. It uses the Wire library to scan I2C devices. It receives packets from the LoRa module, displays the received data on an OLED screen, and shows the content of the packet on the serial port. The purpose of the code is to receive and display the packets sent by the transmitter while controlling the functionality of the LoRa receiver.
 
 ## GPS-TRACKER.ino
-This code is designed to control the operation of the GPS module. It reads GPS data to obtain location information. It uses the TinyGPS++ library and the HardwareSerial library. It reads serial data from the GPS module and, when a valid location fix is obtained, it displays the latitude, longitude, and altitude information on the serial port. The purpose of the code is to read and display GPS location data.
+This code is designed to monitor the distance between a transmitter and a receiver using LoRa communication and GPS coordinates. The setup function initializes various components such as the GPS module, OLED display, and LoRa module. It also configures the necessary pins and communication settings. If a different module is used instead of the T-Beam, the pin assignments may need to be adjusted accordingly.
 
-## Integrated Receiver and Transmitter
-The code utilizes the LoRa library to establish long-range communication between the LoRa transmitter and receiver. LoRa (Long Range) technology enables reliable communication over long distances with low power consumption. The LoRa module is configured to operate at a frequency of 868MHz (BAND), which is a common frequency for LoRa applications in Europe.
+The defined constants at the beginning of the code serve specific purposes. The SCREEN_WIDTH and SCREEN_HEIGHT constants define the dimensions of the OLED display. OLED_RESET is used to specify the reset pin of the display. SS, RST, and DI0 constants define the GPIO pins used by the LoRa module for chip select, reset, and interrupt. BAND represents the operating frequency of the LoRa module. These constants are used throughout the code to configure and communicate with the respective components.
 
-The GPS module is connected to the receiver using a serial communication line. The TinyGPS++ library is used to decode the NMEA GPS data received from the module. The GPS data includes latitude and longitude information, as well as altitude.
+Overall, the code reads GPS coordinates from the receiver, receives data packets via LoRa, calculates the distance between the transmitter and receiver using the Haversine formula, and displays relevant information on the OLED display. It also checks for significant changes in distance and provides appropriate feedback through both the serial monitor and the display. This setup allows for real-time monitoring and alerting based on distance variations between the transmitter and receiver.
 
-In the main loop, the code checks for available GPS data by reading the GPSSerial. If valid GPS location data is received, it proceeds to check for incoming LoRa packets using the LoRa.parsePacket() function. If a packet is available, it reads the data using the readData() function.
+###In Integrated_Receiver Code:
+- Threshold values is set up to 5 meters(float) because of the GPS unstable coordinates the location. It is caused by some reasons. Such as T-Beam modules looks towards to the sky, when there are obstacles such as ceilings deviation occurs on latitude and longitude values. Even electromagnetic waves in the environment (such as a phone calls) that will disrupt the frequency can sometimes cause it. Arrange to your threshold value by making measurements in various environmental conditions untill the data is correct. If you trust your conditions and modules you can make the comment block threshold declaration part of the Integrated_Receiver code.
 
-The received packet contains the latitude and longitude information transmitted by the LoRa transmitter. The code extracts the latitude and longitude values from the packet using substring operations and converts them to floating-point values for further calculations.
+- You can arrange the informations on the display in the "DisplayDistance()" function.
 
-To calculate the distance between the receiver and transmitter, the Haversine formula is used. The Haversine formula takes into account the curvature of the Earth and provides a reasonably accurate estimation of the distance between two points on the Earth's surface. The calculateDistance() function implements the Haversine formula and returns the distance in meters.
-
-The calculated distance is then displayed on the OLED screen using the Adafruit SSD1306 library. The OLED screen is initialized with the appropriate settings, and the displayData() function is called to update the screen with the distance value.
-
-In addition to the OLED display, the distance value is printed on the serial port for monitoring and debugging purposes. The receiver and transmitter coordinates, as well as the calculated distance, are printed on the serial port to provide a comprehensive view of the received data.
-
-These technical details showcase how the code integrates LoRa communication, GPS data parsing, distance calculation, and display functionalities to create a complete system for wireless distance measurement using LoRa and GPS technologies.
-
-
+- Also you can print the  distance between cars on your project if its necessary. It can be used in a scenario like, a 
+To instantly follow the distance to the destination to be reached or to measure the distance traveled. It's all up to you.
 
 ![Output](_project_image_2.jpg)
 
@@ -75,4 +67,4 @@ These technical details showcase how the code integrates LoRa communication, GPS
 - [TinyGPS++ Library](https://github.com/mikalhart/TinyGPSPlus) - For GPS data parsing.
 - [Adafruit SSD1306 Library](https://github.com/adafruit/Adafruit_SSD1306) - For OLED display support.
 - [LoRa Library](https://github.com/sandeepmistry/arduino-LoRa) - For LoRa communication.
-
+-[LilyGo T-BeamV1.1](https://github.com/LilyGO/TTGO-T-Beam) - For T-Beam Module
