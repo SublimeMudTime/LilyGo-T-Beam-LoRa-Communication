@@ -50,7 +50,7 @@ The defined constants at the beginning of the code serve specific purposes. The 
 
 Overall, the code reads GPS coordinates from the receiver, receives data packets via LoRa, calculates the distance between the transmitter and receiver using the Haversine formula, and displays relevant information on the OLED display. It also checks for significant changes in distance and provides appropriate feedback through both the serial monitor and the display. This setup allows for real-time monitoring and alerting based on distance variations between the transmitter and receiver.
 
-###In Integrated_Receiver Code:
+### In Integrated_Receiver Code:
 - Threshold values is set up to 5 meters(float) because of the GPS unstable coordinates the location. It is caused by some reasons. Such as T-Beam modules looks towards to the sky, when there are obstacles such as ceilings deviation occurs on latitude and longitude values. Even electromagnetic waves in the environment (such as a phone calls) that will disrupt the frequency can sometimes cause it. Arrange to your threshold value by making measurements in various environmental conditions untill the data is correct. If you trust your conditions and modules you can make the comment block threshold declaration part of the Integrated_Receiver code.
 
 - You can arrange the informations on the display in the "DisplayDistance()" function.
