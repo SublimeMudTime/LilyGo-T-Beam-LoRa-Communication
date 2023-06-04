@@ -46,13 +46,13 @@ void displayDistance(float distance) {
     display.println("Distance increased!");
     display.println("Stay on the Line.");
     display.setTextSize(1);
-    display.println("Distance: Inreasing");
+    display.println("Distance: Increasing");
   } else if (distance <= -decreaseThreshold) {
     display.println("Distance decreased!");
     display.println("Stand Your Position!");
     display.setTextSize(2);
     display.println("CAREFUL!");
-     display.setTextSize(1);
+    display.setTextSize(1);
     display.println("Distance: Decreasing");  
   } else {
     display.println("Good Driving,");
@@ -77,11 +77,11 @@ void displaySerialDistance(float distance) {
 
 float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
   // Haversine formülü ile mesafe hesaplama
-  float r = 6371000; // Dünya yarıçapı (metre cinsinden)
+  float r = 6371000.0; // Dünya yarıçapı (metre cinsinden)
   float dLat = radians(lat2 - lat1);
   float dLon = radians(lon2 - lon1);
-  float a = sin(dLat / 2) * sin(dLat / 2) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
-  float c = 2 * atan2(sqrt(a), sqrt(1 - a));
+  float a = sin(dLat / 2.0) * sin(dLat / 2.0) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2.0) * sin(dLon / 2.0);
+  float c = 2.0 * atan2(sqrt(a), sqrt(1 - a));
   float distance = r * c;
 
   return distance;
@@ -89,11 +89,11 @@ float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
 
 void displayCoordinates(float transmitterLat, float transmitterLon, float receiverLat, float receiverLon, float distance) {
   Serial.println("GPS Geographic Coordinates");
-  Serial.println("----Transmitter Latitude: " + String(transmitterLat) + " m");
-  Serial.println("----Transmitter Longitude: " + String(transmitterLon) + " m");
-  Serial.println("----Receiver Latitude: " + String(receiverLat) + " m");
-  Serial.println("----Receiver Longitude: " + String(receiverLon) + " m");
-  Serial.println("----Distance: " + String(distance) + " m");
+  Serial.println("----Transmitter Latitude: " + String(transmitterLat, 6) + " m");
+  Serial.println("----Transmitter Longitude: " + String(transmitterLon, 6) + " m");
+  Serial.println("----Receiver Latitude: " + String(receiverLat, 6) + " m");
+  Serial.println("----Receiver Longitude: " + String(receiverLon, 6) + " m");
+  Serial.println("----Distance: " + String(distance, 6) + " m");
   Serial.println("******************************");
 }
 
