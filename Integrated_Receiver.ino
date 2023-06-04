@@ -84,8 +84,14 @@ float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
   float c = 2.0 * atan2(sqrt(a), sqrt(1 - a));
   float distance = r * c;
 
+  // Mesafeyi negatif veya pozitif olarak güncelleme
+  if (lat2 < lat1) {
+    distance *= -1;
+  }
+
   return distance;
 }
+
 
 void displayCoordinates(float transmitterLat, float transmitterLon, float receiverLat, float receiverLon, float distance) {
   Serial.println("GPS Geographic Coordinates");
