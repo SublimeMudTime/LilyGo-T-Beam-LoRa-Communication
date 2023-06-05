@@ -58,6 +58,15 @@ Overall, the code reads GPS coordinates from the receiver, receives data packets
 - Also you can print the  distance between cars on your project if its necessary. It can be used in a scenario like, a 
 To instantly follow the distance to the destination to be reached or to measure the distance traveled. It's all up to you.
 
+## PathFinderGps_IntegratedReceiver.ino
+This code introduces the following additions to the previous version:
+
+The checkIntersection() function is implemented to verify whether the transmitter and receiver paths intersect. It takes two sets of points, path1 and path2, and performs intersection checks based on these points. If the paths intersect, it returns true; otherwise, it returns false.
+The displayWarningMessage() function is included to display warning messages through the serial port. The function takes a message parameter and writes it to the serial port. This allows appropriate warning messages to be displayed when intersections occur.
+The determinePaths() function is introduced to define the transmitter and receiver paths. These paths can be defined using fixed points or real-time GPS data. For example, fixed points are added to the transmitterPath and receiverPath vectors.
+The setup() function handles the initial setup. It initializes the serial and LoRa connections, initializes the SSD1306 OLED display, configures the GPS settings, and calls the determinePaths() function to set the paths.
+The loop() function is the main loop that continuously runs. It reads GPS data, calculates the distance from the nearest points, determines the direction, displays the distance on the OLED screen and serial port, checks for path intersections, and displays an appropriate warning message on the serial port.
+
 ![Output](_project_image_2.jpg)
 
 
