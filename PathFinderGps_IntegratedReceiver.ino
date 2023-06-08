@@ -4,7 +4,6 @@
 #include <Adafruit_SSD1306.h>
 #include <TinyGPS++.h>
 #include <HardwareSerial.h>
-#include <vector>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -19,14 +18,6 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 TinyGPSPlus gps;
 HardwareSerial GPSSerial(1);
-
-struct Point {
-  float latitude;
-  float longitude;
-};
-
-std::vector<Point> transmitterPath;
-std::vector<Point> receiverPath;
 
 float decreaseThreshold = 5.0;  // Azalma eşik değeri (örneğin 5 metre)
 float increaseThreshold = 5.0;  // Artış eşik değeri (örneğin 5 metre)
@@ -45,6 +36,58 @@ String readData() {
 
   return packet;
 }
+void checkIntersection(float transmitterLat, float transmitterLon, float receiverLat, float receiverLon) {
+  
+
+  // Yön tayini yapmak için önceki konumları saklamak için değişkenler
+  static float previousTransmitterLat = 0.0;
+  static float previousTransmitterLon = 0.0;
+  static float previousReceiverLat = 0.0;
+  static float previousReceiverLon = 0.0;
+
+  // Yolların kesişme durumunu saklamak için değişken
+  static bool intersectionDetected = false;
+
+  // Yön tayini için fark hesaplamaları
+  float transmitterDiffLat = transmitterLat - previousTransmitterLat;
+  float transmitterDiffLon = transmitterLon - previousTransmitterLon;
+  float receiverDiffLat = receiverLat - previousReceiverLat;
+  float receiverDiffLon = receiverLon - previousReceiverLon;
+
+  // Yön tayini için önceki konumları güncelleme
+  previousTransmitterLat = transmitterLat;
+  previousTransmitterLon = transmitterLon;
+  previousReceiverLat = receiverLat;
+  previousReceiverLon = receiverLon;
+
+  // Yolların kesişip kesişmediğini kontrol etme
+  if (transmitterDiffLat * receiverDiffLon != transmitterDiffLon * receiverDiffLat) {
+    intersectionDetected = true;
+  } else {
+    intersectionDetected = false;
+  }
+
+  // Uyarı mesajlarını seri port ve OLED ekrana yazdırma
+  Serial.println("------------------------------");
+  if (intersectionDetected) {
+
+    Serial.println("Yollar kesişecek!");
+    display.println("Yollar kesişecek!");
+
+    
+    
+  } else {
+    Serial.println("Yollar kesişmeyecek.");
+    display.println("Yollar kesişmeyecek.");
+
+    
+    
+  }
+  Serial.println("------------------------------");
+  display.display();
+}
+
+
 
 void displayDistance(float distance) {
   display.clearDisplay();
@@ -52,12 +95,12 @@ void displayDistance(float distance) {
   display.setCursor(0, 0);
 
   if (distance >= increaseThreshold) {
-    display.println("Distance increased!");
+    display.println("Distance decreased!");
     display.println("Stay on the Line.");
     display.setTextSize(1);
     display.println("Distance: Increasing");
   } else if (distance <= -decreaseThreshold) {
-    display.println("Distance decreased!");
+    display.println("Distance increased!");
     display.println("Stand Your Position!");
     display.setTextSize(2);
     display.println("CAREFUL!");
@@ -76,124 +119,105 @@ void displayDistance(float distance) {
 
 void displaySerialDistance(float distance) {
   if (distance >= increaseThreshold) {
-    Serial.println("Distance increased! Drive safely.");
-  } else if (distance <= -decreaseThreshold) {
     Serial.println("Distance decreased! Pay attention.");
+    Serial.println("Yollar kesişecek!");
+
+  } else if (distance <= -decreaseThreshold) {
+    Serial.println("Distance increased. Drive Safely.");
+    Serial.println("Yollar Kesişmemekte.");
+
   } else {
     Serial.println("Distance is stable. Drive carefully.");
   }
+
 }
-
-float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
-  // Haversine formülü ile mesafe hesaplama
-  float r = 6371000; // Dünya yarıçapı (metre cinsinden)
-  float dLat = radians(lat2 - lat1);
-  float dLon = radians(lon2 - lon1);
-  float a = sin(dLat / 2) * sin(dLat / 2) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
-  float c = 2 * atan2(sqrt(a), sqrt(1 - a));
-  float distance = r * c;
-
+float calculateDistance2(float lat1, float lon1, float lat2, float lon2) {
+  float distance = gps.distanceBetween(lat1, lon1, lat2, lon2);
   return distance;
 }
 
-bool checkIntersection(const std::vector<Point>& path1, const std::vector<Point>& path2) {
-  // Yolların kesişme kontrolünü gerçekleştirme
-  // Eğer yollar kesişiyorsa, true döndür
-  // Eğer yollar kesişmiyorsa, false döndür
-  // İki yolu kesişme algoritmasına göre kontrol et
+
+void displayCoordinates(float transmitterLat, float transmitterLon, float receiverLat, float receiverLon, float distance) {
+  Serial.println("GPS Geographic Coordinates");
+  Serial.println("----Transmitter Latitude: " + String(transmitterLat, 6) + " m");
+  Serial.println("----Transmitter Longitude: " + String(transmitterLon, 6) + " m");
+  Serial.println("----Receiver Latitude: " + String(receiverLat, 6) + " m");
+  Serial.println("----Receiver Longitude: " + String(receiverLon, 6) + " m");
+  Serial.println("----Distance: " + String(distance, 6) + " m");
+  Serial.println("******************************");
 }
 
-void displayWarningMessage(const String& message) {
-  Serial.println(message);
-  // Uyarı mesajını ekrana yazdırma işlemleri
-}
+void processGPSData() {
+  if (gps.location.isValid()) {
+    float latitude = gps.location.lat();
+    float longitude = gps.location.lng();
 
-void determinePaths() {
-  // Transmitter ve receiver yollarını belirleme işlemleri
-  // Örnek olarak sabit yollar tanımlanabilir veya GPS verileri kullanılabilir
-  // İşlemler sonucunda transmitterPath ve receiverPath vektörleri güncellenmelidir
-  // Örnek olarak:
-  
-  transmitterPath.clear();
-  receiverPath.clear();
-  
-  // Transmitter yolunu tanımla
-  Point transmitterPoint1;
-  transmitterPoint1.latitude = 40.12345;
-  transmitterPoint1.longitude = 29.67890;
-  
-  Point transmitterPoint2;
-  transmitterPoint2.latitude = 40.23456;
-  transmitterPoint2.longitude = 29.78901;
-  
-  transmitterPath.push_back(transmitterPoint1);
-  transmitterPath.push_back(transmitterPoint2);
-  
-  // Receiver yolunu tanımla
-  Point receiverPoint1;
-  receiverPoint1.latitude = 40.34567;
-  receiverPoint1.longitude = 29.89012;
-  
-  Point receiverPoint2;
-  receiverPoint2.latitude = 40.45678;
-  receiverPoint2.longitude = 29.90123;
-  
-  receiverPath.push_back(receiverPoint1);
-  receiverPath.push_back(receiverPoint2);
+    int packetSize = LoRa.parsePacket();
+    if (packetSize) {
+      String packet = readData();
+      String receivedLatitude = packet.substring(packet.indexOf("LAT:") + 4, packet.indexOf(","));
+      String receivedLongitude = packet.substring(packet.indexOf("LON:") + 4);
+
+      // Convert received latitude and longitude to float with 6 decimal places
+      float receivedLat = receivedLatitude.toFloat();
+      float receivedLon = receivedLongitude.toFloat();
+
+      // Calculate distance
+      float distance = calculateDistance2(latitude, longitude, receivedLat, receivedLon);
+      
+      // Check if distance has decreased or increased significantly
+      if (previousDistance > 0.0) {
+        float difference = previousDistance - distance;
+        displaySerialDistance(difference);
+        displayDistance(difference);
+      }
+      if(distance < 50)
+      {
+        Serial.println("THERE IS AN EMERGENCY VEHICLE NEARBY, PLEASE KEEP YOUR POSITION!");
+        
+      }
+       if(500 < distance)
+      {
+        Serial.println("Good Driving");
+
+      }
+
+      
+      // Update previous distance value
+      previousDistance = distance;
+
+      // Display coordinates and distance
+      displayCoordinates(latitude, longitude, receivedLat, receivedLon, distance);
+    }
+  }
 }
 
 void setup() {
   Serial.begin(9600);
   while (!Serial);
-  
-  if (!LoRa.begin(BAND)) {
-    Serial.println("LoRa init failed. Check your connections.");
-    while (true);
-  }
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println("SSD1306 allocation failed");
-    while (true);
-  }
+  Wire.begin();
+  Wire.setClock(400000);
 
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
-  display.setTextColor(WHITE);
+  display.setTextColor(SSD1306_WHITE);
+
+  LoRa.setPins(SS, RST, DI0);
+
+  if (!LoRa.begin(BAND)) {
+    Serial.println("Starting LoRa failed!");
+    while (1);
+  }
 
   setupGPS();
-  determinePaths();
 }
 
 void loop() {
-  // GPS verilerini oku
   while (GPSSerial.available() > 0) {
     gps.encode(GPSSerial.read());
   }
 
-  if (gps.location.isValid()) {
-    float latitude = gps.location.lat();
-    float longitude = gps.location.lng();
-
-    // En yakın noktalardan mesafeyi hesapla
-    float transmitterDistance = calculateDistance(latitude, longitude, transmitterPath[0].latitude, transmitterPath[0].longitude);
-    float receiverDistance = calculateDistance(latitude, longitude, receiverPath[0].latitude, receiverPath[0].longitude);
-
-    // Yön bilgisini belirle
-    float distance = receiverDistance - transmitterDistance;
-  
-    // Mesafeyi ekrana yazdır
-    displayDistance(distance);
-
-    // Mesafeyi seri port üzerinden yazdır
-    displaySerialDistance(distance);
-
-    // Yolların kesişme kontrolünü yap
-    if (checkIntersection(transmitterPath, receiverPath)) {
-      displayWarningMessage("Yollar kesişecek!");
-    } else {
-      displayWarningMessage("Yollar kesişmeyecek.");
-    }
-
-    // Önceki mesafeyi güncelle
-    previousDistance = distance;
-  }
+  processGPSData();
+  delay(1000);
 }
