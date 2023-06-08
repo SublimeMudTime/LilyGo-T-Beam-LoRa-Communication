@@ -67,9 +67,9 @@ The determinePaths() function is introduced to define the transmitter and receiv
 The setup() function handles the initial setup. It initializes the serial and LoRa connections, initializes the SSD1306 OLED display, configures the GPS settings, and calls the determinePaths() function to set the paths.
 The loop() function is the main loop that continuously runs. It reads GPS data, calculates the distance from the nearest points, determines the direction, displays the distance on the OLED screen and serial port, checks for path intersections, and displays an appropriate warning message on the serial port.
 
-![Output](_project_image_2.jpg)
+![Output](_project_image_5.jpg)
 
-
+![Output](_project_image_6.jpg)
 
 
 ## Acknowledgements
